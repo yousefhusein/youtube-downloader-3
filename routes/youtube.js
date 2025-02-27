@@ -17,9 +17,8 @@ const actor = apifyClient.actor('xtech/youtube-video-downloader')
 router.get('/', limiter, async (req, res) => {
   const call = await actor.call({ urls: [req.query.url] })
   const { items } = await apifyClient.dataset(call.defaultDatasetId).listItems()
-
-  if (items.length < 1 || !items[0].download_url) {
-    return res.status(400).json({ error: 'This video could not be found' })
+  if (items.length < 1 || items?.[0]?.error || !items[0].download_url) {
+    return res.status(400).json({ error: items?.[0]?.error || 'Not found' })
   }
 
   try {
